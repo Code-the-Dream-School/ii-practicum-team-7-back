@@ -1,19 +1,19 @@
-## **Branch Name/Ticket Title**
+## **User Authentication**
 
 ### **Description**
-- What does this PR do? (Briefly explain the feature, fix, or enhancement introduced in this pull request)
-- Why is it needed? (Provide context or link to any related issues/tickets)
+- This pull request sets up the backend for user login and registration. Passwords are securely hashed before being saved to the MongoDB database. Upon successful login or registration, a token is generated and attached to the individual user. This token is required for authentication, as only authenticated users are allowed to perform further actions, such as posting jobs.
+- It is related to scrum 18.
 
 ### **Changes Made**
 - List of key changes in this PR:
-  - [ ] Added/Modified endpoints
+  - [X] Added/Modified endpoints
   - [ ] Fixed bugs
-  - [ ] Updated database models
-  - [ ] Middleware/Service updates
+  - [X] Updated database models
+  - [X] Middleware/Service updates
 
 ### **How to Test**
 - Steps to test this PR:
-  1. Checkout the branch locally: `git checkout <branch-name>`
+  1. Checkout the branch locally: `git checkout hannah-user-authentication-scrum18
   2. Run `npm install` to install dependencies.
   3. Run tests with `npm test`.
   4. Start the server: `npm run dev` (or your project's start command).
