@@ -33,13 +33,6 @@ const ProfileSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        validate: {
-            validator: function (imgURL) {
-                if (!imgURL) return true;
-                return /^(https?:\/\/.*\.(?:png|jpg|jpeg))$/i.test(imgURL);
-            },
-            message: props => `${props.value} is not a valid image URL!`
-        }
     },
     createdBy: {
         type: mongoose.Types.ObjectId,
