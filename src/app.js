@@ -4,12 +4,15 @@ require("dotenv").config();
 const cors = require("cors");
 const favicon = require("express-favicon");
 const logger = require("morgan");
-//MongoDB connection
-const connectDB = require("./db/connect.js");
+const connectDB = require("./db/connect.js");     //MongoDB connection
+
+const authenticatedUser = require("./middleware/authentication.js");
 
 const mainRouter = require("./routes/mainRouter.js");
 const authRouter = require("./routes/user-auth.js");
+const profileRouter = require("./routes/profile.js");
 
+const notFoundMiddleware = require("./middleware/not-found.js");   //Error handler if a route does not exist.
 
 
 // middleware
@@ -23,8 +26,9 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 // routes
 app.use('/api/v1', mainRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/profile", authenticatedUser, profileRouter);
 
-
+app.use(notFoundMiddleware);
 
 const { PORT = 8000 } = process.env;
 
