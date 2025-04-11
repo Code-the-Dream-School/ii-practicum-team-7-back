@@ -19,12 +19,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, "Password required."],
         minLength: 8,
-    },
-    role: {
-        type: String,
-        enum: ["Job seeker", "Employer", "Both job seeker and employer"],
-        default: "Both job seeker and employer",
-    },
+    }
 
 });
 
