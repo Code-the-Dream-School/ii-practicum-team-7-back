@@ -3,25 +3,25 @@ const mongoose = require("mongoose");
 const ProfileSchema = new mongoose.Schema({
     name: {
         type: String,
-        require: [true, "Please provide full name."],
-        maxLength: 150
+        required: [true, "Please provide full name"],
+        maxLength: 180
     },
     email: {
         type: String,
-        required: [true, "Please provide email."],
+        required: [true, "Please provide email"],
         match: [/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, "Please provide a valid email.",],
     },
     role: {
         type: String,
-        require: [true, "Please provide role."]
+        required: [true, "Please provide role"]
     },
     phone: {
         type: String,
-        match: [/^\d{3}-\d{3}-\d{4}$/, "Phone number must be in the format ###-###-####."]
+        match: [/^\d{3}-\d{3}-\d{4}$/, "Phone number must be in the format ###-###-####"]
     },
     address: {
         type: String,
-        maxLength: 200,
+        maxLength: 250,
     },
     bio: {
         type: String,

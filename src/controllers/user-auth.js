@@ -1,33 +1,39 @@
 const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
-const { BadRequestError, UnauthenticatedError } = require("../errors");
+
 
 
 const register = async (req, res) => {
     const user = await User.create({ ...req.body });
     const token = user.createJWT();
-    res.status(StatusCodes.CREATED).json({ user: { name: user.name }, token });
+    res.status(StatusCodes.CREATED).json({ user: { userId: user._id, name: user.name }, token });
 };
 
 const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        throw new BadRequestError("Please provide email and password.");
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Please provide email and password."
+        });
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-        throw new UnauthenticatedError(`No user with email ${email} is found.`);
+        return res.status(StatusCodes.NOT_FOUND).json({
+            message: `No user with email ${email} is found.`
+        });
     }
 
     const isPasswordCorrect = await user.checkPassword(password);
     if (!isPasswordCorrect) {
-        throw new UnauthenticatedError("Wrong password, please try again.");
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+            message: "Wrong password, please try again."
+        });
     }
 
     const token = user.createJWT();
-    res.status(StatusCodes.OK).json({ user: { name: user.name }, token });
+    res.status(StatusCodes.OK).json({ user: { userId: user._id, name: user.name }, token });
 };
 
 module.exports = { register, login };
