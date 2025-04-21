@@ -11,8 +11,10 @@ const authenticatedUser = require("./middleware/authentication.js");
 const mainRouter = require("./routes/mainRouter.js");
 const authRouter = require("./routes/user-auth.js");
 const profileRouter = require("./routes/profile.js");
+const reviewRouter = require("./routes/reviewRoute.js");
 
-const notFoundMiddleware = require("./middleware/not-found.js");   //Error handler if a route does not exist.
+const notFoundMiddleware = require("./middleware/not-found.js");   //Error handler middleware if a route does not exist.
+const errorHandlerMiddleware = require("./middleware/error-handler.js"); //
 
 
 // middleware
@@ -27,8 +29,10 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use('/api/v1', mainRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/profile", authenticatedUser, profileRouter);
+app.use("/api/v1/review", authenticatedUser, reviewRouter);
 
 app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 const { PORT = 8000 } = process.env;
 
