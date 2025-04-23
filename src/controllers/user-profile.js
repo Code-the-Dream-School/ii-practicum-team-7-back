@@ -6,7 +6,7 @@ const createProfile = async (req, res) => {
     const newProfile = { ...req.body };
     newProfile.createdBy = req.user.userId;
     const profile = await Profile.create(newProfile);
-    res.status(StatusCodes.CREATED).json({ profile });
+    return res.status(StatusCodes.CREATED).json({ profile });
 };
 
 const getUserProfile = async (req, res) => {
@@ -14,18 +14,18 @@ const getUserProfile = async (req, res) => {
     const { user: { userId }, params: { id: profileId } } = req;
     const profile = await Profile.findOne({ _id: profileId, createdBy: userId });
     if (!profile) {
-        res.status(StatusCodes.NOT_FOUND).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
             message: `No user profile with profile id:${profileId} was found.`
         });
     }
-    res.status(StatusCodes.OK).json({ profile });
+    return res.status(StatusCodes.OK).json({ profile });
 
 };
 
 const updateProfile = async (req, res) => {
     const { name, email, role, phone, address, bio, skills, image } = req.body;
     if (name === "" || email === "" || role === "") {
-        res.status(StatusCodes.BAD_REQUEST).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "Name, email, and role fields cannot be empty."
         });
     }
@@ -35,11 +35,11 @@ const updateProfile = async (req, res) => {
         { new: true, runValidators: true }
     );
     if (!updatedProfile) {
-        res.status(StatusCodes.NOT_FOUND).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
             message: `No user profile with id ${req.params.id} was found.`
         });
     }
-    res.status(StatusCodes.OK).json({ updatedProfile });
+    return res.status(StatusCodes.OK).json({ updatedProfile });
 };
 
 const deleteProfile = async (req, res) => {
@@ -49,12 +49,12 @@ const deleteProfile = async (req, res) => {
         createdBy: userId
     });
     if (!profile) {
-        res.status(StatusCodes.NOT_FOUND).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
             message: `No user profile with id ${profileId} was found.`
         });
     }
 
-    res.status(StatusCodes.NO_CONTENT).json({
+    return res.status(StatusCodes.NO_CONTENT).json({
         message: `Profile ${profileId} was deleted.`
     });
 };
