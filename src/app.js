@@ -1,16 +1,17 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
-require("dotenv").config();
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const favicon = require("express-favicon");
 const logger = require("morgan");
 const connectDB = require("./db/connect.js");     //MongoDB connection
-
-const authenticatedUser = require("./middleware/authentication.js");
-
+const passport = require("passport");
+require("./config/passport.js");
+//routes
 const mainRouter = require("./routes/mainRouter.js");
-const authRouter = require("./routes/user-auth.js");
-const profileRouter = require("./routes/profile.js");
+const authRouter = require("./routes/userRoute.js");
+const profileRouter = require("./routes/profileRoute.js");
 const reviewRouter = require("./routes/reviewRoute.js");
 
 const notFoundMiddleware = require("./middleware/not-found.js");   //Error handler middleware if a route does not exist.
@@ -19,17 +20,22 @@ const errorHandlerMiddleware = require("./middleware/error-handler.js"); //
 
 // middleware
 app.use(express.json());
-app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'));
 app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
+app.use(cookieParser());
+app.use(passport.initialize());
 
 // routes
 app.use('/api/v1', mainRouter);
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/profile", authenticatedUser, profileRouter);
-app.use("/api/v1/review", authenticatedUser, reviewRouter);
+app.use("/api/v1/profile", profileRouter);
+app.use("/api/v1/review", reviewRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

@@ -2,27 +2,72 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 
-const auth = (req, res, next) => {
-    //check header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer")) {
-        res.status(StatusCodes.UNAUTHORIZED).json({
-            message: "Authentication invalid."
-        });
-    }
-
-    const token = authHeader.split(" ")[1];
+const authenticatedUser = async (req, res, next) => {
+    //Security headers for all authentication-related routes
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
 
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
-        //attach user to future job routes
-        req.user = { userId: payload.userId, name: payload.name };
+        let token = req.cookies.accessToken;
+
+        if (!token && req.headers.authorization) {
+            const authHeader = req.headers.authorization;
+            const [bearer, headerToken] = authHeader.split(" ");
+
+            if (bearer === "Bearer" && headerToken) {
+                token = headerToken;
+            }
+        }
+
+        if (!token) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+                message: "Authentication required - No token provided"
+            });
+        }
+
+        // Verify JWT
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+
+        //check if the user exists in the database.
+        const user = await User.findById(decoded.userId).select("-password");
+
+        if (!user) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+                message: "User with current token no longer exists."
+            });
+        }
+
+        req.user = {
+            userId: user._id,
+            name: user.name,
+            email: user.email,
+            provider: user.provider
+        };
         next();
     } catch (error) {
-        res.status(StatusCodes.UNAUTHORIZED).json({
-            message: "Authentication invalid."
+        let errorMessage = "Authentication invalid.";
+
+        if (error instanceof jwt.TokenExpiredError) {
+            errorMessage = "Token expired.";
+        }
+
+        if (error instanceof jwt.JsonWebTokenError) {
+            errorMessage = "Invalid token.";
+        }
+
+        // Clear invalid token cookie if present
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/'
+        });
+
+        console.log("Error in authentication middleware", error.message);
+
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+            message: errorMessage
         });
     }
 };
 
-module.exports = auth;
+module.exports = authenticatedUser;
