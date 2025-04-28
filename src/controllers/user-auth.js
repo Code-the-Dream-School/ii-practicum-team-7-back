@@ -2,17 +2,19 @@ const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
 
 const setCookies = (res, accessToken, refreshToken) => {
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("accessToken", accessToken, {
         httpOnly: true,   //prevent XSS attack
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict", //prevent cross-site request forgery attack
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax", //prevent cross-site request forgery attack
         maxAge: 2 * 24 * 60 * 60 * 1000    //2 days
     });
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,   //prevent XSS attack
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict", //prevent cross-site request forgery attack
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         maxAge: 20 * 24 * 60 * 60 * 1000    //20 days
     });
 };
@@ -138,4 +140,4 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = { register, login, logout };
+module.exports = { register, login, logout, setCookies };
