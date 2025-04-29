@@ -5,12 +5,12 @@ const createReview = async (req, res) => {
     const newReview = { ...req.body };
     newReview.reviewerId = req.user.userId;
     const review = await Review.create(newReview);
-    res.status(StatusCodes.CREATED).json({ review });
+    return res.status(StatusCodes.CREATED).json({ review });
 };
 
 const getAllReview = async (req, res) => {
     const reviews = await Review.find({ reviewerId: req.user.userId }).sort("createdAt");
-    res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
+    return res.status(StatusCodes.OK).json({ reviews, count: reviews.length });
 };
 
 const getSingleReview = async (req, res) => {
@@ -19,18 +19,18 @@ const getSingleReview = async (req, res) => {
         reviewerId: req.user.userId
     });
     if (!review) {
-        res.status(StatusCodes.NOT_FOUND).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
             message: `No single review with id ${req.params.id} was found.`
         });
     }
 
-    res.status(StatusCodes.OK).json({ review });
+    return res.status(StatusCodes.OK).json({ review });
 };
 
 const updateReview = async (req, res) => {
     const { revieweeName, rating, comment } = req.body;
     if (revieweeName === "" || rating <= 0 || comment === "") {
-        res.status(StatusCodes.BAD_REQUEST).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message: "Please provide reviewee's name, rating, or comment for editing the review."
         });
     }
@@ -40,11 +40,11 @@ const updateReview = async (req, res) => {
         { new: true }
     );
     if (!updatedReview) {
-        res.status(StatusCodes.NOT_FOUND).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
             message: `No single review with id ${req.params.id} was found.`
         });
     }
-    res.status(StatusCodes.OK).json({ updatedReview });
+    return res.status(StatusCodes.OK).json({ updatedReview });
 };
 
 const deleteReview = async (req, res) => {
@@ -53,12 +53,12 @@ const deleteReview = async (req, res) => {
         reviewerId: req.user.userId
     });
     if (!review) {
-        res.status(StatusCodes.NOT_FOUND).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
             message: `No single review with id ${req.params.id} was found.`
         });
     }
 
-    res.status(StatusCodes.NO_CONTENT).json({
+    return res.status(StatusCodes.NO_CONTENT).json({
         message: `Review ${req.params.id} was deleted.`
     });
 };
