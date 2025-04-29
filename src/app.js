@@ -26,7 +26,8 @@ app.use(express.static('public'));
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(cors({
     origin: "http://localhost:5173",
-    credentials: true
+    credentials: true,
+    exposedHeaders: ["set-cookie"]
 }));
 app.use(cookieParser());
 app.use(passport.initialize());

@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const { StatusCodes } = require("http-status-codes");
-const { register, login, logout, setCookies } = require("../controllers/user-auth");
+const { register, login, logout, setCookies, getCurrentUser } = require("../controllers/user-auth");
+const authenticatedUser = require("../middleware/authentication");
 
 router.post("/register", register);
 
@@ -29,6 +30,8 @@ router.get("/google/callback", passport.authenticate("google", {
         return res.redirect("http://localhost:5173");
 
     });
+
+router.get("/current-user", authenticatedUser, getCurrentUser);
 
 router.post("/logout", logout);
 

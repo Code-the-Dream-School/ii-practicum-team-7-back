@@ -55,18 +55,20 @@ const authenticatedUser = async (req, res, next) => {
         }
 
         // Clear invalid token cookie if present
-        res.clearCookie('accessToken', {
+        res.clearCookie("accessToken", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             path: '/'
         });
 
         console.log("Error in authentication middleware", error.message);
 
-        return res.status(StatusCodes.UNAUTHORIZED).json({
-            message: errorMessage
-        });
+        return res.status(StatusCodes.UNAUTHORIZED)
+            .setHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+            .json({
+                message: errorMessage
+            });
     }
 };
 

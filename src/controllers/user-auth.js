@@ -19,6 +19,23 @@ const setCookies = (res, accessToken, refreshToken) => {
     });
 };
 
+//Get current user endpoint.
+const getCurrentUser = async (req, res) => {
+    try {
+        return res.status(StatusCodes.OK).json({
+            userId: req.user.userId,
+            name: req.user.name,
+            email: req.user.email,
+            provider: req.user.provider
+        });
+    } catch (error) {
+        console.log("Error in getCurrentUser controller", error.message);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: "Server error"
+        });
+    }
+};
+
 //User register
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -140,4 +157,4 @@ const logout = async (req, res) => {
     }
 };
 
-module.exports = { register, login, logout, setCookies };
+module.exports = { register, login, logout, setCookies, getCurrentUser };
