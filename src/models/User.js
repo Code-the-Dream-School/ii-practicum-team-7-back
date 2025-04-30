@@ -17,21 +17,42 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "Please provide password"],
         minLength: 8,
+    },
+    provider: {
+        type: String,
+        enum: ["local", "google"],
+        default: "local",
+        required: true
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
     }
 
 });
 
 UserSchema.pre("save", async function () {
-    const salt = await bcrypt.genSalt(7);
+    if (this.provider !== "local" || !this.isModified("password")) return;
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-UserSchema.methods.createJWT = function () {
-    return jwt.sign({ userId: this._id, name: this.name }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRATION,
-    });
+UserSchema.methods.createRefreshToken = function () {
+    return jwt.sign(
+        { userId: this._id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "20d" }
+    );
+};
+
+UserSchema.methods.createAccessToken = function () {
+    return jwt.sign(
+        { userId: this._id },
+        process.env.JWT_ACCESS_SECRET,
+        { expiresIn: "2d" }
+    );
 };
 
 UserSchema.methods.checkPassword = async function (candidatePassword) {
