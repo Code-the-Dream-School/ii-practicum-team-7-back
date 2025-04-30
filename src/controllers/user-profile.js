@@ -3,6 +3,7 @@ const { StatusCodes } = require("http-status-codes");
 
 
 const createProfile = async (req, res) => {
+
     try {
         const newProfile = { ...req.body };
         newProfile.createdBy = req.user.userId;
@@ -15,6 +16,7 @@ const createProfile = async (req, res) => {
             error: error.message
         });
     }
+
 };
 
 const getUserProfile = async (req, res) => {
@@ -28,6 +30,7 @@ const getUserProfile = async (req, res) => {
         }
 
         return res.status(StatusCodes.OK).json({ profile });
+
 
     } catch (error) {
         console.error("Error in getUserProfile controller,", error.message);
@@ -72,13 +75,13 @@ const deleteProfile = async (req, res) => {
         const profile = await Profile.findOneAndDelete({
             _id: profileId,
             createdBy: userId
+
         });
         if (!profile) {
             return res.status(StatusCodes.NOT_FOUND).json({
                 message: `Profile ${profileId} not found`
             });
         }
-
         return res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         console.error("Error in deleteProfile controller,", error.message);
@@ -87,6 +90,7 @@ const deleteProfile = async (req, res) => {
             error: error.message
         });
     }
+
 };
 
 module.exports = { createProfile, getUserProfile, updateProfile, deleteProfile };

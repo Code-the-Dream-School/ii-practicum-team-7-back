@@ -38,6 +38,7 @@ const getCurrentUser = async (req, res) => {
 
 //User register
 const register = async (req, res) => {
+
     const { name, email, password } = req.body;
     try {
         const userExists = await User.findOne({ email });
@@ -72,6 +73,7 @@ const register = async (req, res) => {
             error: error.message
         });
     }
+
 
 };
 
@@ -155,6 +157,8 @@ const logout = async (req, res) => {
             error: error.message
         });
     }
+
+
 };
 
 module.exports = { register, login, logout, setCookies, getCurrentUser };

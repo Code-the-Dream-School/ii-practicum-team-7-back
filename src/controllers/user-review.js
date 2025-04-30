@@ -34,12 +34,14 @@ const getSingleReview = async (req, res) => {
         const review = await Review.findOne({
             _id: req.params.id,
             reviewerId: req.user.userId
+
         });
         if (!review) {
             return res.status(StatusCodes.NOT_FOUND).json({
                 message: `No single review with id ${req.params.id} was found.`
             });
         }
+
 
         return res.status(StatusCodes.OK).json({ review });
     } catch (error) {
@@ -92,6 +94,7 @@ const deleteReview = async (req, res) => {
             });
         }
 
+
         return res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         console.log("Error in deleteReview controller,", error.message);
@@ -100,6 +103,7 @@ const deleteReview = async (req, res) => {
             error: error.message
         });
     }
+
 };
 
 module.exports = { getAllReview, getSingleReview, createReview, updateReview, deleteReview };

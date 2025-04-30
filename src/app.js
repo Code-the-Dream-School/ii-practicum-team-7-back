@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const favicon = require("express-favicon");
 const logger = require("morgan");
 const connectDB = require("./db/connect.js");     //MongoDB connection
+
 const passport = require("passport");
 require("./config/passport.js");
 //routes
@@ -15,8 +16,7 @@ const profileRouter = require("./routes/profileRoute.js");
 const reviewRouter = require("./routes/reviewRoute.js");
 
 const notFoundMiddleware = require("./middleware/not-found.js");   //Error handler middleware if a route does not exist.
-const errorHandlerMiddleware = require("./middleware/error-handler.js"); //
-
+const errorHandlerMiddleware = require("./middleware/error-handler.js"); //Error handler for specific implementation errors.
 
 // middleware
 app.use(express.json());
@@ -35,8 +35,10 @@ app.use(passport.initialize());
 // routes
 app.use('/api/v1', mainRouter);
 app.use("/api/v1/auth", authRouter);
+
 app.use("/api/v1/profile", profileRouter);
 app.use("/api/v1/review", reviewRouter);
+
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
