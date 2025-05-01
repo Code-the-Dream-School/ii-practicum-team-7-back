@@ -4,8 +4,16 @@ const jobSchema = new mongoose.Schema({
     title: {
         type: String
     },
-    location: {
+    address: {
         type: String
+    },
+    state: {
+        type: String
+    },
+    zipCode: {
+        type: Number,
+        min: 10000,
+        max: 99999
     },
     description: {
         type: String
@@ -28,8 +36,15 @@ const jobSchema = new mongoose.Schema({
 
 jobSchema.pre("save", async function () {
     if (this.isNew || this.isModified("creatorId")) {
-        const user = await mongoose.model("User").findById(this.creatorId).select("name");
-        this.creatorName = user.name;
+        try {
+            const user = await mongoose.model("User").findById(this.creatorId).select("name");
+            if (!user) {
+                throw new Error("User not found.");
+            }
+            this.creatorName = user.name;
+        } catch (error) {
+            throw new Error(`Error setting creatorName: ${error.message}`);
+        }
     }
 });
 
