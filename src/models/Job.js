@@ -4,10 +4,10 @@ const jobSchema = new mongoose.Schema({
     title: {
         type: String
     },
-    address: {
-        type: String
+    category: {
+        type: String,
     },
-    state: {
+    summary: {
         type: String
     },
     zipCode: {
@@ -15,14 +15,24 @@ const jobSchema = new mongoose.Schema({
         min: 10000,
         max: 99999
     },
+    city: {
+        type: String
+    },
+    state: {
+        type: String
+    },
     description: {
         type: String
     },
-    category: {
-        type: String
+    employmentType: {
+        type: String,
+        enum: ["Full-Time", "Part-Time", "Contract"],
+        default: "Part-Time"
     },
-    jobType: {
-        type: [String]
+    workLocationType: {
+        type: String,
+        enum: ["In-Person", "Remote", "Hybrid"],
+        default: "In-Person"
     },
     creatorId: {
         type: mongoose.Types.ObjectId,
@@ -30,8 +40,12 @@ const jobSchema = new mongoose.Schema({
     },
     creatorName: {
         type: String
+    },
+    createdDate: {
+        type: Date,
+        default: Date.now
     }
-}, { timestamps: true }
+}
 );
 
 jobSchema.pre("save", async function () {

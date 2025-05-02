@@ -26,10 +26,10 @@ const createJobApplication = async (req, res) => {
     try {
         const { jobId } = req.params;
         const applicantId = req.user.userId;
-        const { resumeUrl, coverLetter } = req.body;
+        const { resumeUrl, coverLetter, applicantName } = req.body;
         const job = await Job.findById(jobId);
         if (!job) {
-            return res.status(StatusCodes.FORBIDDEN).json({
+            return res.status(StatusCodes.NOT_FOUND).json({
                 message: "Job not found."
             });
         }
@@ -48,7 +48,7 @@ const createJobApplication = async (req, res) => {
         const application = await JobApplication.create({
             jobId,
             applicantId,
-            applicantName: user.name,
+            applicantName: applicantName?.trim() || user.name,
             resumeUrl,
             coverLetter
         });

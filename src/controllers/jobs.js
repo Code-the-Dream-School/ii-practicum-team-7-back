@@ -8,14 +8,17 @@ const createJob = async (req, res) => {
         return res.status(StatusCodes.CREATED).json({
             jobId: job._id,
             title: job.title,
-            address: job.address,
-            state: job.state,
-            zipCode: job.zipCode,
-            description: job.description,
             category: job.category,
-            jobType: job.jobType,
+            summary: job.summary,
+            zipCode: job.zipCode,
+            city: job.city,
+            state: job.state,
+            description: job.description,
+            employmentType: job.employmentType,
+            workLocationType: job.workLocationType,
             creatorId: job.creatorId,
-            creatorName: job.creatorName
+            creatorName: job.creatorName,
+            createdDate: job.createdDate
         });
     } catch (error) {
         console.log("Error in createJob controller,", error.message);
@@ -28,7 +31,7 @@ const createJob = async (req, res) => {
 
 const getAllJobs = async (req, res) => {
     try {
-        const jobs = await Job.find().sort("createdAt");
+        const jobs = await Job.find().sort("-createdAt");   //show jobs in descending order
         return res.status(StatusCodes.OK).json({ jobs, count: jobs.length });
     } catch (error) {
         console.log("Error in getAllJobs controller,", error.message);
@@ -41,13 +44,10 @@ const getAllJobs = async (req, res) => {
 
 const getSingleJob = async (req, res) => {
     try {
-        const job = await Job.findOne({
-            _id: req.params.id,
-            creatorId: req.user.userId
-        });
+        const job = await Job.findOne({ _id: req.params.id });
         if (!job) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                message: `No job with id ${req.params.id} was found.`
+                message: `No job with ID ${req.params.id} was found.`
             });
         }
         return res.status(StatusCodes.OK).json({ job });
@@ -62,23 +62,33 @@ const getSingleJob = async (req, res) => {
 
 const updateJob = async (req, res) => {
     try {
-        const { title, address, state, zipCode, description, category, jobType } = req.body;
-        const { id } = req.params;
+        const allowedFields = ["title", "category", "summary", "zipCode", "city", "state", "description", "employmentType", "workLocationType"];
 
-        if (!title || !address || !state || !zipCode || !description || !category || !jobType?.length) {
+        const updateFields = {};
+
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                updateFields[field] = req.body[field];
+            }
+        });
+
+        if (Object.keys(updateFields).length === 0) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                message: "Please provide required fields: title, address, state, zipCode, description, category, and at least one job type."
+                message: "No valid fields provided for update."
             });
         }
 
+        const { id } = req.params;
+
         const updatedJob = await Job.findOneAndUpdate(
             { _id: id, creatorId: req.user.userId },
-            { title, address, state, zipCode, description, category, jobType },
+            updateFields,
             { new: true, runValidators: true }
         );
+
         if (!updatedJob) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                message: `No job found with id ${id} or you are not authorized to update it.`
+                message: `No job found with ID ${id} or you are not authorized to update it.`
             });
         }
         return res.status(StatusCodes.OK).json({
@@ -102,7 +112,7 @@ const deleteJob = async (req, res) => {
         });
         if (!job) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                message: `No job with id ${req.params.id} was found.`
+                message: `No job with ID ${req.params.id} was found.`
             });
         }
 
