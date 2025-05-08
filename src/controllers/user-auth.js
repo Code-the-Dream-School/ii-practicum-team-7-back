@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 
 const setCookies = (res, accessToken, refreshToken) => {
@@ -57,6 +58,8 @@ const register = async (req, res) => {
 
         const accessToken = user.createAccessToken();
         const refreshToken = user.createRefreshToken();
+        user.refreshTokens.push(refreshToken);
+        await user.save();
 
         setCookies(res, accessToken, refreshToken);
 
@@ -111,6 +114,8 @@ const login = async (req, res) => {
 
         const accessToken = user.createAccessToken();
         const refreshToken = user.createRefreshToken();
+        user.refreshTokens.push(refreshToken);
+        await user.save();
 
         setCookies(res, accessToken, refreshToken);
 
@@ -133,18 +138,35 @@ const login = async (req, res) => {
 //User logout
 const logout = async (req, res) => {
     try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (refreshToken) {
+            try {
+                const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, { ignoreExpiration: true });
+
+                const user = await User.findById(decoded.userId);
+
+                if (user) {
+                    user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
+                    await user.save();
+                }
+            } catch (error) {
+                console.log("Error verifying refresh token on logout: ", error.message);
+            }
+        }
+
         // Clear cookies
         res.clearCookie('accessToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/'
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            path: "/"
         });
         res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/'
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            path: "/"
         });
 
         return res.status(StatusCodes.OK).json({

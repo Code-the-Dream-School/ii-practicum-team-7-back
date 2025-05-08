@@ -14,9 +14,11 @@ router.get("/google/callback", passport.authenticate("google", {
     session: false,
     failureRedirect: "http://localhost:5173"
 }),
-    (req, res) => {
+    async (req, res) => {
         const accessToken = req.user.createAccessToken();
         const refreshToken = req.user.createRefreshToken();
+        req.user.refreshTokens.push(refreshToken);
+        await req.user.save();
 
         setCookies(res, accessToken, refreshToken); // set them as HTTP-only cookies
 
