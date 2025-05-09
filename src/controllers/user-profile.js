@@ -41,6 +41,29 @@ const getUserProfile = async (req, res) => {
     }
 };
 
+//Get user profile by userId.
+const getProfileByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const profile = await Profile.findOne({ createdBy: userId });
+
+        if (!profile) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: `No profile found for user with ID ${userId}.`
+            });
+        }
+
+        return res.status(StatusCodes.OK).json({ profile });
+    } catch (error) {
+        console.log("Error in getProfileByUserId controller,", error.message);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: "Server error.",
+            error: error.message
+        });
+    }
+};
+
 const updateProfile = async (req, res) => {
     try {
         const { name, email, role, phone, address, bio, skills, image } = req.body;
@@ -93,4 +116,4 @@ const deleteProfile = async (req, res) => {
 
 };
 
-module.exports = { createProfile, getUserProfile, updateProfile, deleteProfile };
+module.exports = { createProfile, getUserProfile, updateProfile, deleteProfile, getProfileByUserId };

@@ -29,8 +29,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true,
         sparse: true
-    }
-
+    },
+    refreshTokens: [{
+        type: String,
+        required: true
+    }]
 });
 
 UserSchema.pre("save", async function () {
