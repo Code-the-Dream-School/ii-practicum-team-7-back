@@ -5,7 +5,7 @@ const { createProfile, getUserProfile, updateProfile, deleteProfile, getProfileB
 
 router.post("/", authenticatedUser, createProfile);   //create user profile
 router.get("/:id", authenticatedUser, getUserProfile); //get individual user profile by profileId
-router.get("/:userId", authenticatedUser, getProfileByUserId); //get individual user profile by userId
+router.get("/current-user/:userId", authenticatedUser, getProfileByUserId); //get individual user profile by userId
 router.patch("/:id", authenticatedUser, updateProfile); //edit individual user profile
 router.delete("/:id", authenticatedUser, deleteProfile);  //delete individual user profile
 
