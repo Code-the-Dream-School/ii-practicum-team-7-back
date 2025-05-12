@@ -1,5 +1,6 @@
 const Profile = require("../models/Profile");
 const { StatusCodes } = require("http-status-codes");
+const mongoose = require("mongoose");
 
 
 const createProfile = async (req, res) => {
@@ -45,8 +46,17 @@ const getUserProfile = async (req, res) => {
 const getProfileByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
+        const { fields } = req.query;
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
-        const profile = await Profile.findOne({ createdBy: userId });
+        let query = Profile.findOne({ createdBy: userObjectId });
+
+        if (fields) {
+            const fieldsList = fields.split(',').map(field => field.trim()).join(" ");
+            query = query.select(fieldsList);
+        }
+
+        const profile = await query;
 
         if (!profile) {
             return res.status(StatusCodes.NOT_FOUND).json({
