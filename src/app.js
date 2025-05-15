@@ -21,7 +21,7 @@ const notFoundMiddleware = require("./middleware/not-found.js");   //Error handl
 const errorHandlerMiddleware = require("./middleware/error-handler.js"); //Error handler for specific implementation errors.
 
 // middleware
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'));

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const JobApplication = require("../models/JobApplication");
 const Job = require("../models/Job");
 const User = require("../models/User");
@@ -11,7 +12,7 @@ const getApplicationByJob = async (req, res) => {
             .find({ jobId }).select("applicantName resumeUrl coverLetter createdAt -_id")
             .sort("createdAt");
 
-        return res.status(StatusCodes.OK).json(applications);
+        return res.status(StatusCodes.OK).json({ data: applications });
     } catch (error) {
         console.log("Error in getApplicationByJob controller,", error.message);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -27,31 +28,39 @@ const createJobApplication = async (req, res) => {
         const { jobId } = req.params;
         const applicantId = req.user.userId;
         const { resumeUrl, coverLetter, applicantName } = req.body;
-        const job = await Job.findById(jobId);
+
+        //check if jobId is MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(jobId)) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "Invalid jobId format",
+                receivedId: jobId
+            });
+        }
+
+        const validJobId = new mongoose.Types.ObjectId(jobId);
+
+        const job = await Job.findById(validJobId);
         if (!job) {
             return res.status(StatusCodes.NOT_FOUND).json({
                 message: "Job not found."
             });
         }
-        const existingApplication = await JobApplication.findOne({ jobId, applicantId });
-        if (existingApplication) {
-            return res.status(StatusCodes.CONFLICT).json({
-                message: "You have already applied to this job."
-            });
-        }
+
         const user = await User.findById(applicantId).select("name");
         if (!user) {
             return res.status(StatusCodes.NOT_FOUND).json({
                 message: "User not found."
             });
         }
+
         const application = await JobApplication.create({
-            jobId,
+            jobId: validJobId,
             applicantId,
             applicantName: applicantName?.trim() || user.name,
             resumeUrl,
             coverLetter
         });
+
         return res.status(StatusCodes.CREATED).json({
             applicationId: application._id,
             jobId: application.jobId,
